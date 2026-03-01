@@ -8,12 +8,12 @@ let purchasedItems = [];
 let purchasedQty = [];
 
 // State Arrays by Zone
-const zone1 = ["WA","OR","CA"];
-const zone2 = ["ID","NV","AZ","UT"];
-const zone3 = ["MT","WY","CO","NM"];
-const zone4 = ["ND","SD","NE","KS","OK","TX"];
-const zone5 = ["MN","IA","MO","AR","LA","WI","IL","MS"];
-const zone6 = ["FL","GA","SC","NC","VA","AL","TN","KY","IN","MI","OH","PA","NY","NJ","DE","MD","CT","RI","MA","VT","NH","ME","AK","HI"];
+const zone1 = ["ME","NJ","VT","NH","NY","CT","RI","MA"];
+const zone2 = ["PA","MD","DE","VA","NC","SC","WV","OH","KY","IN"];
+const zone3 = ["MN","WI","IL","LA","KS","MO","TN","GA","AL","GL"];
+const zone4 = ["ND","SD","NE","CO","OK","AR","MS","LA","CA"];
+const zone5 = ["WA","MT","OR","ID","WY","UT","NV","AZ","NM","TX"];
+const zone6 = ["AK","HI"];
 
 const taxRate = 0.15;
 
