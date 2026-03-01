@@ -10,7 +10,7 @@ let purchasedQty = [];
 // State Arrays by Zone
 const zone1 = ["ME","NJ","VT","NH","NY","CT","RI","MA"];
 const zone2 = ["PA","MD","DE","VA","NC","SC","WV","OH","KY","IN"];
-const zone3 = ["MN","WI","IL","LA","KS","MO","TN","GA","AL","GL"];
+const zone3 = ["MN","WI","IL","LA","KS","MO","TN","GA","AL","GL","FL"];
 const zone4 = ["ND","SD","NE","CO","OK","AR","MS","LA","CA"];
 const zone5 = ["WA","MT","OR","ID","WY","UT","NV","AZ","NM","TX"];
 const zone6 = ["AK","HI"];
