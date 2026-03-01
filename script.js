@@ -1,182 +1,147 @@
-/* 
-STEP LIST
-0 Load branded page with button
-1 Ask item
-2 Ask quantity
-3 Continue shopping?
-4 Ask state
-5 Calculate
-6 Display invoice
-7 Shop again reset
-*/
 
-const items = ["chair", "recliner", "table", "umbrella"];
+// Catalog Arrays 
+const items = ["Chair", "Recliner", "Table", "Umbrella"];
 const prices = [25.50, 37.75, 49.95, 24.89];
 
-const states = [
-"WA","OR","CA","NV","ID","UT","AZ","MT","WY","CO","NM",
-"ND","SD","NE","KS","OK","TX","MN","IA","MO","AR","LA",
-"WI","IL","MS","MI","IN","KY","TN","AL","GA","FL",
-"OH","WV","VA","NC","SC","PA","NY","VT","NH","ME",
-"MA","CT","RI","NJ","DE","MD","AK","HI"
-];
-
+// Purchased Arrays 
 let purchasedItems = [];
 let purchasedQty = [];
+
+// State Arrays by Zone
+const zone1 = ["WA","OR","CA"];
+const zone2 = ["ID","NV","AZ","UT"];
+const zone3 = ["MT","WY","CO","NM"];
+const zone4 = ["ND","SD","NE","KS","OK","TX"];
+const zone5 = ["MN","IA","MO","AR","LA","WI","IL","MS"];
+const zone6 = ["FL","GA","SC","NC","VA","AL","TN","KY","IN","MI","OH","PA","NY","NJ","DE","MD","CT","RI","MA","VT","NH","ME","AK","HI"];
+
+const taxRate = 0.15;
 
 document.getElementById("purchaseBtn").addEventListener("click", startPurchase);
 
 function startPurchase() {
     purchasedItems = [];
     purchasedQty = [];
-    document.getElementById("invoice").style.display = "none";
-    askItem();
+    takeOrder();
 }
 
-function askItem() {
+function takeOrder() {
 
-    const itemInput = prompt("What item would you like to buy today: Chair, Recliner, Table or Umbrella?");
-    if (itemInput === null) {
-        alert("Transaction cancelled.");
-        return;
+    let itemInput = prompt("What item would you like to buy today: Chair, Recliner, Table or Umbrella?");
+    if (itemInput === null) return;
+
+    itemInput = itemInput.trim().toLowerCase();
+
+    let index = items.findIndex(i => i.toLowerCase() === itemInput);
+
+    if (index === -1) {
+        alert("Invalid item entered.");
+        return takeOrder();
     }
 
-    const itemLower = itemInput.toLowerCase();
+    let qty = prompt("How many " + items[index] + " would you like to buy?");
+    if (qty === null) return;
 
-    if (!items.includes(itemLower)) {
-        alert("Invalid item. Please try again.");
-        return askItem();
-    }
-
-    const qtyInput = prompt(`How many ${itemLower} would you like to buy?`);
-    if (qtyInput === null) {
-        alert("Transaction cancelled.");
-        return;
-    }
-
-    const qty = parseInt(qtyInput);
+    qty = parseInt(qty);
 
     if (isNaN(qty) || qty <= 0) {
-        alert("Invalid quantity.");
-        return askItem();
+        alert("Invalid quantity entered.");
+        return takeOrder();
     }
 
-    purchasedItems.push(itemLower);
+    purchasedItems.push(items[index]);
     purchasedQty.push(qty);
 
-    const again = prompt("Continue shopping? y/n");
-    if (again !== null && again.toLowerCase() === "y") {
-        askItem();
+    let again = prompt("Continue shopping? y/n");
+    if (again && again.toLowerCase() === "y") {
+        takeOrder();
     } else {
-        askState();
+        getState();
     }
 }
 
-function askState() {
+function getState() {
 
-    const stateInput = prompt("Enter two-letter state abbreviation:", "I");
-    if (stateInput === null) {
-        alert("Transaction cancelled.");
-        return;
-    }
+    let state = prompt("Enter two-letter state abbreviation:");
+    if (state === null) return;
 
-    const state = stateInput.toUpperCase();
+    state = state.trim().toUpperCase();
 
-    if (!states.includes(state)) {
+    if (state.length !== 2) {
         alert("Invalid state abbreviation.");
-        return askState();
+        return getState();
     }
 
-    calculate(state);
+    calculateTotals(state);
 }
 
-function calculate(state) {
+function determineZone(state) {
+
+    if (zone1.includes(state)) return 1;
+    if (zone2.includes(state)) return 2;
+    if (zone3.includes(state)) return 3;
+    if (zone4.includes(state)) return 4;
+    if (zone5.includes(state)) return 5;
+    if (zone6.includes(state)) return 6;
+
+    return 6; // default
+}
+
+function calculateTotals(state) {
 
     let subtotal = 0;
 
     for (let i = 0; i < purchasedItems.length; i++) {
-        const index = items.indexOf(purchasedItems[i]);
+        let index = items.indexOf(purchasedItems[i]);
         subtotal += prices[index] * purchasedQty[i];
     }
 
-    subtotal = parseFloat(subtotal.toFixed(2));
-
-    const tax = parseFloat((subtotal * 0.15).toFixed(2));
-
-    const zone = getZone(state);
+    let zone = determineZone(state);
 
     let shipping;
 
-    shipping = subtotal > 100 ? 0 : getShippingCost(zone);
-
-    const total = parseFloat((subtotal + tax + shipping).toFixed(2));
-
-    displayInvoice(state, subtotal, tax, shipping, total);
-}
-
-function getZone(state) {
-
-    switch(state) {
-        case "WA": case "OR": case "CA": case "NV": case "ID": case "UT": case "AZ":
-            return 5;
-        case "MT": case "WY": case "CO": case "NM": case "ND": case "SD": case "NE":
-        case "KS": case "OK": case "TX":
-            return 4;
-        case "MN": case "IA": case "MO": case "AR": case "LA":
-            return 3;
-        case "WI": case "IL": case "MS": case "MI": case "IN": case "KY": case "TN":
-        case "AL": case "GA": case "FL":
-            return 2;
-        case "OH": case "WV": case "VA": case "NC": case "SC": case "PA": case "NY":
-        case "VT": case "NH": case "ME": case "MA": case "CT": case "RI":
-        case "NJ": case "DE": case "MD":
-            return 1;
-        case "AK": case "HI":
-            return 6;
-        default:
-            return 1;
+    switch (zone) {
+        case 1: shipping = 0; break;
+        case 2: shipping = 20; break;
+        case 3: shipping = 30; break;
+        case 4: shipping = 35; break;
+        case 5: shipping = 45; break;
+        case 6: shipping = 50; break;
+        default: shipping = 50;
     }
+
+    shipping = subtotal > 100 ? 0 : shipping;
+
+    let tax = subtotal * taxRate;
+    let total = subtotal + tax + shipping;
+
+    displayInvoice(state, subtotal, shipping, tax, total);
 }
 
-function getShippingCost(zone) {
-
-    switch(zone) {
-        case 1: return 0;
-        case 2: return 20;
-        case 3: return 30;
-        case 4: return 35;
-        case 5: return 45;
-        case 6: return 50;
-        default: return 0;
-    }
-}
-
-function displayInvoice(state, subtotal, tax, shipping, total) {
+function displayInvoice(state, subtotal, shipping, tax, total) {
 
     const invoiceDiv = document.getElementById("invoice");
     invoiceDiv.style.display = "block";
 
-    let html = "<h2>Invoice</h2>";
-    html += `<p><strong>Shipping State:</strong> ${state}</p>`;
-    html += "<h3>Items Purchased:</h3>";
+    let output = "<h2>Invoice</h2>";
+    output += "<h3>Items Purchased:</h3>";
 
     for (let i = 0; i < purchasedItems.length; i++) {
-        const index = items.indexOf(purchasedItems[i]);
-        const lineTotal = (prices[index] * purchasedQty[i]).toFixed(2);
-        html += `<p>${purchasedItems[i]} x ${purchasedQty[i]} = $${lineTotal}</p>`;
+        let index = items.indexOf(purchasedItems[i]);
+        let lineTotal = prices[index] * purchasedQty[i];
+        output += "<p>" + purchasedItems[i] + " x " + purchasedQty[i] + " = $" + lineTotal.toFixed(2) + "</p>";
     }
 
-    html += "<hr>";
+    output += "<hr>";
 
-    html += "<h3>Transaction Summary:</h3>";
-    html += `<p>Subtotal: $${subtotal.toFixed(2)}</p>`;
-    html += `<p>Tax (15%): $${tax.toFixed(2)}</p>`;
-    html += `<p>Shipping: $${shipping.toFixed(2)}</p>`;
-    html += `<p><strong>Total: $${total.toFixed(2)}</strong></p>`;
+    output += "<h3>Transaction Details:</h3>";
+    output += "<p>State: " + state + "</p>";
+    output += "<p>Subtotal: $" + subtotal.toFixed(2) + "</p>";
+    output += "<p>Shipping: $" + shipping.toFixed(2) + "</p>";
+    output += "<p>Tax (15%): $" + tax.toFixed(2) + "</p>";
+    output += "<p><strong>Total: $" + total.toFixed(2) + "</strong></p>";
 
-    html += `<div class="center-btn">
-                <button onclick="location.reload()">Shop Again</button>
-             </div>`;
+    output += '<div class="centerBtn"><br><button onclick="location.reload()">Shop Again</button></div>';
 
-    invoiceDiv.innerHTML = html;
+    invoiceDiv.innerHTML = output;
 }
